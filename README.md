@@ -53,54 +53,18 @@ Below is the entity-relationship diagram:
 
 As can be seen, this is a relatively simple database, but it is sufficient for the needs of this project. We have the users table, which has a one-to-many relationship with both the sessions table and the notes table.
 
-Below is a detailed description of each of the tables.
-
-### **Users**
-
-The users table includes the following fields:
-
-- **id:** This field will store the unique identifier of the user.
-- **username:** A unique string field that will serve as the user’s identifier within the system.
-- **first name, last name, and email:** All of these fields are of type string and will store the user’s personal information.
-- **password:** This field will be used to store the user’s password in encrypted format.
-
-> - **createdAt:** This field will store the creation date.
-> - **updatedAt:** This field will store the date of the last update.
-
-### **Notes**
-
-The notes table consists of the following fields:
-
-- **id:** This field will store the unique identifier for each note.
-- **user_id:** This field will reference the identifier of the user who created the note.
-- **body:** This field will contain the text or content of the note.
-
-> - **createdAt:** This field will store the creation date.
-> - **updatedAt:** This field will store the date of the last update.
-
-### **Sessions**
-
-The sessions table is structured with the following fields:
-
-- **id:** This field will store the unique identifier for each session.
-- **user_id:** This field will reference the identifier of the user associated with the session.
-- **access_token:** This field will store the access token linked to the corresponding session.
-
-> - **createdAt:** This field will store the creation date.
-> - **updatedAt:** This field will store the date of the last update.
-
 ## Getting started
 
 1. Clone the repository to your local machine:
 
    ```sh
-   git clone https://github.com/iamcarlosdaniel/keep-api-three-tier
+   git clone https://github.com/iamcarlosdaniel/keep-server-api-three-tier
    ```
 
 2. Navigate to the project directory:
 
    ```sh
-   cd keep-api-three-tier
+   cd keep-server-api-three-tier
    ```
 
 3. Install the necessary dependencies:
@@ -117,30 +81,43 @@ The sessions table is structured with the following fields:
 
 > The project is configured to run on port 3000, so ensure that this port is available for use and check the database connection. You can find these and other options in the environment variables of the project located in the `.env` file.
 
+> [!IMPORTANT]
+> For the project to function correctly, an initial data load into the database is required. Before running the project, make sure to execute the following commands to complete this process.
+
+- To populate the `colors` collection:
+
+  ```sh
+  npm run seed:colors
+  ```
+
+> [!NOTE]
+> The project is configured to run on port 3000, so ensure that this port is available and that the database connection is properly set up. You can find these and other configuration options in the project's environment variables located in the `.env` file.
+
 ## API Documentation
 
-<img src="docs/swagger_logo.svg" alt="Swagger Logo" width="300">
+<img src="docs/swagger_logo_banner.png" alt="Swagger Logo">
 
-Swagger is an open-source set of tools that assists in designing, building, documenting, and consuming RESTful APIs. It provides a standardized and visual way to interact with APIs, enhancing the understanding and utilization of their endpoints.
+<br>
 
-Swagger is particularly beneficial in environments where collaboration between development and testing teams is essential, as it offers a clear and standardized method for documenting and consuming APIs.
+Swagger is an open-source toolkit that helps design, build, document, and consume RESTful APIs. It provides a standardized and visual way to interact with APIs, improving the understanding and usage of their endpoints.
 
-We utilized this tool by employing the middleware [swagger-ui-express](https://www.npmjs.com/package/swagger-ui-express).
+Swagger is especially useful in environments where collaboration between development and testing teams is essential, as it offers a clear and standardized method for documenting and consuming APIs.
 
-You can find the API documentation at the following route:
+<img src="docs/scalar_logo_banner.png" alt="Scalar Logo">
+
+We use Swagger as a tool for standardized documentation and implement a graphical interface using Scalar through its middleware [@scalar/express-api-reference](https://scalar.com).
+
+You can access the API documentation at the following URL:
 
 ```
-http://localhost:3000/api/v1/docs
+http://localhost:3000/api/v1/reference
 ```
 
-Make sure that the project is running and that port 3000 is not occupied in order to access this route.
+Make sure the project is running and that port 3000 is not in use to access this route.
 
-> You can change the port number and other options in the environment variables of the project located in the `.env` file.
+> [!NOTE]
+> You can change the port number and other options in the project's environment variables located in the `.env` file.
 
 ## Dependencies
 
-You can view the project dependencies along with their versions in the [package.json](package.json) file.
-
-## License
-
-This project is under the MIT License - Refer to the file [LICENSE](https://github.com/iamcarlosdaniel/Keep/blob/main/LICENSE) for more details.
+You can view the project’s dependencies along with their versions in the [package.json](package.json) file.

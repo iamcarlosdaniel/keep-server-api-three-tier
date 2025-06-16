@@ -1,7 +1,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Forgot password</title>
+    <title>Welcome back</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -70,9 +70,20 @@
             </tr>
             <tr>
               <td style="font-size: 50px; line-height: 50px">
-                Change your
+                Welcome back,
                 <br />
-                password
+                <span
+                  style="
+                    color: #155dfc;
+                    display: inline-block;
+                    width: 390px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                  "
+                >
+                  Maria Susana
+                </span>
               </td>
             </tr>
             <tr>
@@ -80,31 +91,22 @@
             </tr>
             <tr>
               <td style="font-size: 16px; line-height: 22px">
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eos,
-                sunt tempore eius placeat illo id assumenda itaque iusto quo
-                nulla officiis accusantium molestias excepturi doloremque
-                facilis veritatis reiciendis magnam ea.
+                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                Reiciendis doloremque voluptate quam enim nostrum. Sit numquam
+                ipsam, suscipit, minima exercitationem incidunt expedita facere
+                ex iusto odit alias ipsum, commodi ipsa?
               </td>
             </tr>
             <tr>
               <td height="20"></td>
             </tr>
             <tr>
-              <td
-                style="
-                  font-size: 48px;
-                  letter-spacing: 5px;
-                  text-align: center;
-                  background-color: #f2f2f2;
-                  padding: 20px;
-                  border: 1px solid #dddddd;
-                "
-              >
-                {{otp}}
+              <td style="font-size: 18px; font-weight: 500; line-height: 22px">
+                New's
               </td>
             </tr>
             <tr>
-              <td height="20"></td>
+              <td></td>
             </tr>
             <tr>
               <td style="font-size: 16px; line-height: 22px">
@@ -121,7 +123,7 @@
                   <tr>
                     <td align="center" bgcolor="#155dfc">
                       <a
-                        href="{{domain}}/reset-password?token={{otp}}"
+                        href="{{domain}}/sign-up/confirm?email={{email}}&otp={{otp}}"
                         target="_blank"
                         style="
                           display: inline-block;
@@ -131,7 +133,7 @@
                           text-decoration: none;
                         "
                       >
-                        Change password
+                        Confirm account
                       </a>
                     </td>
                   </tr>
@@ -149,8 +151,8 @@
             </tr>
             <tr>
               <td style="font-size: 14px; line-height: 20px">
-                If you didn't request to change your password, simply delete
-                this email. You don't have to do anything.
+                If you did not register on our platform, simply delete this
+                email.
               </td>
             </tr>
             <tr>
@@ -170,7 +172,7 @@
             </tr>
             <tr>
               <td style="font-size: 12px; line-height: 20px">
-                Template: forgotPasswordTemplate.hbs
+                Template: confirmAccountTemplate.hbs
               </td>
             </tr>
             <tr>
@@ -216,7 +218,8 @@
                 <a
                   href="https://github.com/iamcarlosdaniel/keep-server-api-three-tier"
                   style="color: #155dfc"
-                >iamcarlosdaniel/keep-server-api-three-tier</a>
+                  >iamcarlosdaniel/keep-server-api-three-tier</a
+                >
               </td>
             </tr>
           </table>

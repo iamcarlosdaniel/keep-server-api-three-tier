@@ -1,7 +1,6 @@
 export const inputValidationMiddleware = (schema) => (req, res, next) => {
   try {
     schema.parse(req.body);
-    console.log("Validation passed");
     next();
   } catch (error) {
     return res.status(error?.status || 400).send({

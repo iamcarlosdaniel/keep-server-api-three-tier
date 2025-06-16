@@ -1,49 +1,51 @@
-import { fileURLToPath } from "url";
-import path, { dirname } from "path";
-
 import express from "express";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { CLIENT_URL } from "./config.js";
 
-import swaggerUi from "swagger-ui-express";
-import swaggerDocument from "./swagger.json" assert { type: "json" };
+import { apiReference } from "@scalar/express-api-reference";
 
 import authRoutes from "./v1/routes/auth.routes.js";
 import notesRoutes from "./v1/routes/note.routes.js";
+import tagRoutes from "./v1/routes/tag.routes.js";
+import imagesRoutes from "./v1/routes/image.route.js";
+
+import errorHandler from "./middlewares/errorHandler.middleware.js";
+
+import OpenApiSpecification from "./openapi.json" with {type: "json"}
 
 const app = express();
 
-// Definir __dirname en módulos ES6
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.CLIENT_URL,
     credentials: true,
   })
 );
+
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(cookieParser());
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/notes", notesRoutes);
+app.use("/api/v1/tags", tagRoutes);
+app.use("/api/v1/images", imagesRoutes);
 
-app.use("/api/v1/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-//Carpeta public para servir archivos estáticos
-app.use(express.static(path.join(__dirname, "../public")));
+app.use(errorHandler);
 
 app.get("/helloworld", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "helloWorld.html"));
+  res.send("Hello World");
 });
 
-// Ruta para servir el archivo HTML
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "index.html"));
-});
+app.use(
+  "/api/v1/reference",
+  apiReference({
+    theme: "none",
+    spec: {
+      content: OpenApiSpecification,
+    },
+  })
+);
 
 export default app;

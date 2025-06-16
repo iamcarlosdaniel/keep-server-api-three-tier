@@ -1,155 +1,102 @@
 import authService from "../services/auth.service.js";
 
+import { catchedAsync } from "../utils/catchedAsync.utils.js";
+
 class AuthController {
-  async confirmEmail(req, res) {
-    try {
-      const email = req.body.email;
-      const response = await authService.confirmEmail(email);
-      res.status(200).send({
-        status: "OK",
-        data: {
-          message: response,
-        },
-      });
-    } catch (error) {
-      res.status(error?.status || 500).send({
-        status: "FAILED",
-        data: {
-          error: [
-            {
-              message:
-                error?.message ||
-                "An error occurred while sending the email. Please try again later.",
-            },
-          ],
-        },
-      });
-    }
-  }
+  signUp = catchedAsync(async (req, res) => {
+    const userData = req.body;
+    const response = await authService.signUp(userData);
 
-  async signUp(req, res) {
-    try {
-      const userData = req.body;
-      const confirmedEmail = req.decoded.email;
-      const { token } = await authService.signUp(userData, confirmedEmail);
+    res.status(200).send({
+      status: "OK",
+      message: response.message,
+      data: response.data,
+    });
+  });
 
-      res.cookie("auth_token", token, {
-        httpOnly: true,
-        sameSite: true,
-        secure: true,
-      });
+  resendOTP = catchedAsync(async (req, res) => {
+    const { email } = req.body;
+    const response = await authService.resendOTP(email);
 
-      res.status(200).send({
-        status: "OK",
-        data: {
-          message:
-            "Congratulations! Your account has been successfully created.",
-        },
-      });
-    } catch (error) {
-      res.status(error?.status || 500).send({
-        status: "FAILED",
-        data: { error: [{ message: error?.message || error }] },
-      });
-    }
-  }
+    res.status(200).send({
+      status: "OK",
+      message: response.message,
+    });
+  });
 
-  async signIn(req, res) {
-    try {
-      const { email, password } = req.body;
+  confirmAccount = catchedAsync(async (req, res) => {
+    const { email, otp } = req.body;
+    const response = await authService.confirmAccount(email, otp);
 
-      const { token } = await authService.signIn(email, password);
+    res.status(200).send({
+      status: "OK",
+      message: response.message,
+    });
+  });
 
-      res.cookie("auth_token", token, {
-        httpOnly: true,
-        sameSite: "none",
-        secure: true,
-      });
+  signIn = catchedAsync(async (req, res) => {
+    const { email, password } = req.body;
+    const response = await authService.signIn(email, password);
 
-      res.status(200).send({
-        status: "OK",
-        data: { message: "Login successful. Welcome back!" },
-      });
-    } catch (error) {
-      res.status(error?.status || 500).send({
-        status: "FAILED",
-        data: { error: [{ message: error?.message || error }] },
-      });
-    }
-  }
+    res.cookie("auth_token", response.data.authToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
 
-  async signOut(req, res) {
-    try {
-      const { token } = req.cookies.token;
+    res.status(200).send({
+      status: "OK",
+      message: response.message,
+    });
+  });
 
-      await authService.signOut(token);
+  forgotPassword = catchedAsync(async (req, res) => {
+    const { email } = req.body;
+    const response = await authService.forgotPassword(email);
 
-      res.clearCookie("auth_token", {
-        httpOnly: true,
-        sameSite: "none",
-        secure: true,
-      });
+    res.status(200).send({
+      status: "OK",
+      message: response.message,
+    });
+  });
 
-      res.status(200).send({
-        status: "OK",
-        data: { message: "Sign out successfully" },
-      });
-    } catch (error) {
-      res.status(error?.status || 500).send({
-        status: "FAILED",
-        data: { error: [{ message: error?.message || error }] },
-      });
-    }
-  }
+  resetPassword = catchedAsync(async (req, res) => {
+    const { email, otp, new_password } = req.body;
+    const response = await authService.resetPassword(email, otp, new_password);
 
-  async authStatus(req, res) {
-    try {
-      const authUser = await authService.authStatus(req.authData.id);
+    res.status(200).send({
+      status: "OK",
+      message: response.message,
+    });
+  });
 
-      res.status(200).send({
-        status: "OK",
-        data: { message: "Authenticated", user: authUser },
-      });
-    } catch (error) {
-      res.status(error?.status || 500).send({
-        status: "FAILED",
-        data: { error: [{ message: error?.message || error }] },
-      });
-    }
-  }
+  authStatus = catchedAsync(async (req, res) => {
+    const userId = req.authData.id;
+    const response = await authService.authStatus(userId);
 
-  async forgotPassword(req, res) {
-    try {
-      const message = await authService.forgotPassword(req.body.email);
-      res.status(200).send({
-        status: "OK",
-        data: message,
-      });
-    } catch (error) {
-      res.status(error?.status || 500).send({
-        status: "FAILED",
-        data: { error: [{ message: error?.message || error }] },
-      });
-    }
-  }
+    res.status(200).send({
+      status: "OK",
+      message: response.message,
+      data: response.data,
+    });
+  });
 
-  async resetPassword(req, res) {
-    try {
-      const userData = req.body;
-      const confirmedEmail = req.email.email;
+  signOut = catchedAsync(async (req, res) => {
+    const authToken =
+      req.cookies?.auth_token || req.headers["authorization"]?.split(" ")[1];
+    const response = await authService.signOut(authToken);
 
-      const message = await authService.resetPassword(userData, confirmedEmail);
-      res.status(200).send({
-        status: "OK",
-        data: message,
-      });
-    } catch (error) {
-      res.status(error?.status || 500).send({
-        status: "FAILED",
-        data: { error: [{ message: error?.message || error }] },
-      });
-    }
-  }
+    res.clearCookie("auth_token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
+
+    res.status(200).send({
+      status: "OK",
+      message: response.message,
+    });
+  });
 }
 
 export default new AuthController();

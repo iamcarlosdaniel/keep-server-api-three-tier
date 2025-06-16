@@ -1,15 +1,16 @@
 import mongoose from "mongoose";
 
-const sessionSchema = new mongoose.Schema(
+const tagSchema = new mongoose.Schema(
   {
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    auth_token: {
+    title: {
       type: String,
       required: true,
+      trim: true,
     },
   },
   {
@@ -17,4 +18,4 @@ const sessionSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model("Session", sessionSchema);
+export default mongoose.model("Tag", tagSchema);

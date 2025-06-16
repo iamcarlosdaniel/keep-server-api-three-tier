@@ -3,8 +3,12 @@ import noteService from "../services/note.service.js";
 class NoteController {
   async getAllMyNotes(req, res) {
     try {
-      const allMyNotes = await noteService.getAllMyNotes(req.authData.id);
-      res.send({ status: "OK", data: allMyNotes });
+      const response = await noteService.getAllMyNotes(req.authData.id);
+      res.send({
+        status: "OK",
+        message: response.message,
+        data: response.data,
+      });
     } catch (error) {
       res.status(error?.status || 500).send({
         status: "FAILED",
@@ -15,9 +19,9 @@ class NoteController {
 
   async getOneNote(req, res) {
     try {
-      const noteFound = await noteService.getOneNote(req.params.id);
+      const response = await noteService.getOneNote(req.params.id);
 
-      res.status(200).send({ status: "OK", data: noteFound });
+      res.status(200).send({ status: "OK", data: response.data });
     } catch (error) {
       res.status(error?.status || 500).send({
         status: "FAILED",
@@ -28,9 +32,9 @@ class NoteController {
 
   async createNote(req, res) {
     try {
-      const newNote = await noteService.createNote(req.body, req.authData.id);
+      const response = await noteService.createNote(req.authData.id, req.body);
 
-      res.status(200).send({ status: "OK", data: newNote });
+      res.status(200).send({ status: "OK", data: response.message });
     } catch (error) {
       res.status(error?.status || 500).send({
         status: "FAILED",
@@ -41,9 +45,25 @@ class NoteController {
 
   async updateNote(req, res) {
     try {
-      const noteUpdated = await noteService.updateNote(req.params.id, req.body);
+      const response = await noteService.updateNote(req.params.id, req.body);
 
-      res.status(200).send({ status: "OK", data: noteUpdated });
+      res.status(200).send({ status: "OK", data: response.message });
+    } catch (error) {
+      res.status(error?.status || 500).send({
+        status: "FAILED",
+        data: { error: [{ message: error.message || error }] },
+      });
+    }
+  }
+
+  async deleteImageFromNote(req, res) {
+    try {
+      const response = await noteService.deleteImageFromNote(
+        req.params.id,
+        req.params.imageId
+      );
+
+      res.status(200).send({ status: "OK", data: response.message });
     } catch (error) {
       res.status(error?.status || 500).send({
         status: "FAILED",
@@ -54,9 +74,9 @@ class NoteController {
 
   async deleteNote(req, res) {
     try {
-      const noteDeleted = await noteService.deleteNote(req.params.id);
+      const response = await noteService.deleteNote(req.params.id);
 
-      res.status(200).send({ status: "OK", data: noteDeleted });
+      res.status(200).send({ status: "OK", data: response.message });
     } catch (error) {
       res.status(error?.status || 500).send({
         status: "FAILED",
