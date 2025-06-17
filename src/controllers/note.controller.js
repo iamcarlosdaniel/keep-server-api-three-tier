@@ -79,6 +79,17 @@ class NoteController {
     });
   });
 
+  changeColor = catchedAsync(async (req, res) => {
+    const userId = req.authData.id;
+    const noteId = req.params.noteId;
+    const colorId = req.body.color_id;
+    const response = await noteService.changeColor(userId, noteId, colorId);
+    res.status(200).send({
+      status: "success",
+      message: response.message,
+    });
+  });
+
   addHeaderImage = catchedAsync(async (req, res) => {
     const userId = req.authData.id;
     const noteId = req.params.noteId;

@@ -35,6 +35,12 @@ router.put(
 
 router.delete("/:noteId", authenticationMiddleware, noteController.deleteNote);
 
+router.put(
+  "/:noteId/color",
+  authenticationMiddleware,
+  noteController.changeColor
+);
+
 router.post(
   "/:noteId/header",
   authenticationMiddleware,

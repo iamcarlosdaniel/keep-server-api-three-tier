@@ -1,6 +1,7 @@
 import Note from "../database/models/note.model.js";
 import User from "../database/models/user.model.js";
 import Tag from "../database/models/tag.model.js";
+import Color from "../database/models/color.model.js";
 
 import UserError from "../errors/user.error.js";
 
@@ -51,7 +52,14 @@ class NoteService {
           },
         },
       ])
-      .select("-__v");
+      .select("-__v")
+      .populate({ path: "header_image", select: "url" })
+      .populate({ path: "color", select: "name" })
+      .populate({ path: "tags", select: "title" })
+      .populate({
+        path: "created_by",
+        select: "first_name last_name",
+      });
 
     if (!noteFound) {
       throw new UserError(
@@ -119,6 +127,32 @@ class NoteService {
     }
 
     return { message: "Note deleted successfully" };
+  }
+
+  async changeColor(userId, noteId, colorId) {
+    const colorFound = await Color.findOne({ _id: colorId });
+    if (!colorFound) {
+      throw new UserError(404, "Color not found");
+    }
+    const updatedNote = await Note.findOneAndUpdate(
+      {
+        _id: noteId,
+        created_by: userId,
+      },
+      {
+        $set: { color: colorId },
+      },
+      { new: true }
+    );
+    if (!updatedNote) {
+      throw new UserError(
+        404,
+        "Note not found or you do not have permission to change its color"
+      );
+    }
+    return {
+      message: "Note color changed successfully",
+    };
   }
 
   async addHeaderImage(userId, noteId, imageId) {
