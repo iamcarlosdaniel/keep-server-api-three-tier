@@ -3,11 +3,14 @@ import mongoose from "mongoose";
 import Color from "../models/color.model.js";
 
 const colors = [
-  { name: "Rojo", value: "#FF0000" },
-  { name: "Verde", value: "#00FF00" },
-  { name: "Azul", value: "#0000FF" },
-  { name: "Amarillo", value: "#FFFF00" },
-  { name: "Negro", value: "#000000" },
+  { name: "red" },
+  { name: "orange" },
+  { name: "yellow" },
+  { name: "green" },
+  { name: "blue" },
+  { name: "fuchsia" },
+  { name: "rose" },
+  { name: "gray" },
 ];
 
 const seedColors = async () => {

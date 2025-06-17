@@ -3,9 +3,9 @@ import bcrypt from "bcryptjs";
 import User from "../database/models/user.model.js";
 import Session from "../database/models/session.model.js";
 
-import { createAccessToken } from "../utils/jwt.utils.js";
-import { sendEmail } from "../utils/sendEmail.utils.js";
-import { createOTP } from "../utils/otp.utils.js";
+import { createAccessToken } from "../utils/jwt.util.js";
+import { sendEmail } from "../utils/sendEmail.util.js";
+import { createOTP } from "../utils/otp.util.js";
 
 import UserError from "../errors/user.error.js";
 
@@ -139,7 +139,7 @@ class AuthService {
       url: process.env.CLIENT_URL,
     };
 
-    await sendEmail(email, "Welcome to Keep", "welcomeTemplate", context);
+    //await sendEmail(email, "Welcome to Keep", "welcomeTemplate", context);
 
     return { message: "Account successfully verified." };
   }

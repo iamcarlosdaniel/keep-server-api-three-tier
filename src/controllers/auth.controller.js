@@ -1,6 +1,6 @@
 import authService from "../services/auth.service.js";
 
-import { catchedAsync } from "../utils/catchedAsync.utils.js";
+import { catchedAsync } from "../utils/catchedAsync.util.js";
 
 class AuthController {
   signUp = catchedAsync(async (req, res) => {
@@ -8,7 +8,7 @@ class AuthController {
     const response = await authService.signUp(userData);
 
     res.status(200).send({
-      status: "OK",
+      status: "success",
       message: response.message,
       data: response.data,
     });
@@ -19,7 +19,7 @@ class AuthController {
     const response = await authService.resendOTP(email);
 
     res.status(200).send({
-      status: "OK",
+      status: "success",
       message: response.message,
     });
   });
@@ -29,7 +29,7 @@ class AuthController {
     const response = await authService.confirmAccount(email, otp);
 
     res.status(200).send({
-      status: "OK",
+      status: "success",
       message: response.message,
     });
   });
@@ -45,7 +45,7 @@ class AuthController {
     });
 
     res.status(200).send({
-      status: "OK",
+      status: "success",
       message: response.message,
     });
   });
@@ -55,7 +55,7 @@ class AuthController {
     const response = await authService.forgotPassword(email);
 
     res.status(200).send({
-      status: "OK",
+      status: "success",
       message: response.message,
     });
   });
@@ -65,7 +65,7 @@ class AuthController {
     const response = await authService.resetPassword(email, otp, new_password);
 
     res.status(200).send({
-      status: "OK",
+      status: "success",
       message: response.message,
     });
   });
@@ -75,7 +75,7 @@ class AuthController {
     const response = await authService.authStatus(userId);
 
     res.status(200).send({
-      status: "OK",
+      status: "success",
       message: response.message,
       data: response.data,
     });
@@ -93,7 +93,7 @@ class AuthController {
     });
 
     res.status(200).send({
-      status: "OK",
+      status: "success",
       message: response.message,
     });
   });

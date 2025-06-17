@@ -1,208 +1,293 @@
 import Note from "../database/models/note.model.js";
+import User from "../database/models/user.model.js";
+import Tag from "../database/models/tag.model.js";
 
-import "../database/models/image.model.js";
+import UserError from "../errors/user.error.js";
 
 class NoteService {
-  async getAllMyNotes(userId) {
-    try {
-      const allMyNotes = await Note.find({ user_id: userId })
-        .populate("images")
-        .populate("color")
-        .populate("tags");
+  async getMyNotes(userId) {
+    const allMyNotes = await Note.find({ created_by: userId })
+      .select("-__v")
+      .populate({ path: "header_image", select: "url" })
+      .populate({ path: "color", select: "name" })
+      .populate({ path: "tags", select: "title" });
 
-      return {
-        message: "Notes retrieved successfully",
-        data: { notes: allMyNotes },
-      };
-    } catch (error) {
-      throw new Error(error.message);
+    if (!allMyNotes || allMyNotes.length === 0) {
+      throw new UserError(404, "No notes found for this user");
     }
+
+    return {
+      message: "Notes retrieved successfully",
+      data: { notes: allMyNotes },
+    };
   }
 
-  async getNoteById(noteId) {
-    try {
-      const noteFound = await Note.findById(noteId);
+  async getNotesSharedWithMe(userId) {
+    const notesSharedWithMe = await Note.find({
+      shared_with: {
+        $elemMatch: { created_by: userId, permission: "viewer" },
+      },
+    }).select("-__v");
 
-      if (!noteFound) {
-        throw {
-          status: 404,
-          userErrorMessage: "Note not found",
-        };
-      }
-
-      return {
-        message: "Note retrieved successfully",
-        data: { note: noteFound },
-      };
-    } catch (error) {
-      console.log(error);
-      throw {
-        status: error.status,
-        message: error.userErrorMessage,
-      };
+    if (!notesSharedWithMe || notesSharedWithMe.length === 0) {
+      throw new UserError(404, "No notes shared with this user");
     }
+
+    return {
+      message: "Notes shared with you retrieved successfully",
+      data: { notes: notesSharedWithMe },
+    };
+  }
+
+  async getNoteById(userId, noteId) {
+    const noteFound = await Note.findOne({
+      _id: noteId,
+    })
+      .or([
+        { created_by: userId },
+        {
+          shared_with: {
+            $elemMatch: { user_id: userId, permission: "viewer" },
+          },
+        },
+      ])
+      .select("-__v");
+
+    if (!noteFound) {
+      throw new UserError(
+        404,
+        "Note not found or you do not have permission to view it"
+      );
+    }
+
+    return {
+      message: "Note retrieved successfully",
+      data: { note: noteFound },
+    };
   }
 
   async createNote(userId, noteData) {
-    try {
-      const newNote = await Note.create({
-        user_id: userId,
-        ...noteData,
-      });
+    await Note.create({
+      created_by: userId,
+      ...noteData,
+    });
 
-      return {
-        message: "Note created successfully",
-        data: { note: newNote },
-      };
-    } catch (error) {
-      console.log(error);
-      throw {
-        status: error.status,
-        message: error.userErrorMessage,
-      };
-    }
+    return {
+      message: "Note created successfully",
+    };
   }
 
-  async updateNote(noteId, noteData) {
-    try {
-      const noteUpdated = await Note.findByIdAndUpdate(
-        noteId,
-        { ...noteData },
-        { new: true }
+  async updateNote(userId, noteId, noteData) {
+    const updatedNote = await Note.findOneAndUpdate(
+      {
+        _id: noteId,
+      },
+      { $set: noteData },
+      { new: true }
+    ).or([
+      { created_by: userId },
+      {
+        shared_with: {
+          $elemMatch: { user_id: userId, permission: "editor" },
+        },
+      },
+    ]);
+
+    if (!updatedNote) {
+      throw new UserError(
+        404,
+        "Note not found or you do not have permission to edit it"
       );
-
-      if (!noteUpdated) {
-        throw {
-          status: 404,
-          userErrorMessage: "Note not found",
-        };
-      }
-
-      return { message: "Note updated successfully" };
-    } catch (error) {
-      console.log(error);
-      throw {
-        status: error.status,
-        message: error.userErrorMessage,
-      };
     }
+
+    return {
+      message: "Note updated successfully",
+    };
   }
 
-  async deleteNote(noteId) {
-    try {
-      const noteDeleted = await Note.findByIdAndDelete(noteId);
+  async deleteNote(userId, noteId) {
+    const deletedNote = await Note.findOneAndDelete({
+      _id: noteId,
+      created_by: userId,
+    });
 
-      if (!noteDeleted) {
-        throw {
-          status: 404,
-          userErrorMessage: "Note not found",
-        };
-      }
-
-      return { message: "Note deleted successfully" };
-    } catch (error) {
-      console.log(error);
-      throw {
-        status: error.status,
-        message: error.userErrorMessage,
-      };
-    }
-  }
-
-  async shareNote(noteId, sharedWithUserId) {
-    try {
-      const noteFound = await Note.findById(noteId);
-      if (!noteFound) {
-        throw {
-          status: 404,
-          userErrorMessage: "Note not found",
-        };
-      }
-      noteFound.shared_with.push({ user_id: sharedWithUserId });
-      await noteFound.save();
-      return {
-        message: "Note shared successfully",
-      };
-    } catch (error) {
-      console.error(error);
-      throw {
-        status: error.status,
-        message: error.userErrorMessage,
-      };
-    }
-  }
-
-  async unshareNote(noteId, sharedWithUserId) {
-    try {
-      const noteFound = await Note.findById(noteId);
-      if (!noteFound) {
-        throw {
-          status: 404,
-          userErrorMessage: "Note not found",
-        };
-      }
-      noteFound.shared_with = noteFound.shared_with.filter(
-        (shared) => !shared.user_id.equals(sharedWithUserId)
+    if (!deletedNote) {
+      throw new UserError(
+        404,
+        "Note not found or you do not have permission to delete it"
       );
-      await noteFound.save();
-      return {
-        message: "Note unshared successfully",
-      };
-    } catch (error) {
-      console.error(error);
-      throw {
-        status: error.status,
-        message: error.userErrorMessage,
-      };
     }
+
+    return { message: "Note deleted successfully" };
   }
 
-  async addImageToNote(noteId, imageId) {
-    try {
-      const noteFound = await Note.findById(noteId);
-      if (!noteFound) {
-        throw {
-          status: 404,
-          userErrorMessage: "Note not found",
-        };
-      }
-      noteFound.images.push(imageId);
-      await noteFound.save();
-      return {
-        message: "Image added to note successfully",
-      };
-    } catch (error) {
-      console.error(error);
-      throw {
-        status: error.status,
-        message: error.userErrorMessage,
-      };
-    }
-  }
-
-  async removeImageFromNote(noteId, imageId) {
-    try {
-      const noteFound = await Note.findById(noteId);
-      if (!noteFound) {
-        throw {
-          status: 404,
-          userErrorMessage: "Note not found",
-        };
-      }
-      noteFound.images = noteFound.images.filter(
-        (image) => !image.equals(imageId)
+  async addHeaderImage(userId, noteId, imageId) {
+    const updatedNote = await Note.findOneAndUpdate(
+      {
+        _id: noteId,
+        created_by: userId,
+      },
+      {
+        $set: { header_image: imageId },
+      },
+      { new: true }
+    );
+    if (!updatedNote) {
+      throw new UserError(
+        404,
+        "Note not found or you do not have permission to add a header image"
       );
-      await noteFound.save();
-      return {
-        message: "Image removed from note successfully",
-      };
-    } catch (error) {
-      console.error(error);
-      throw {
-        status: error.status,
-        message: error.userErrorMessage,
-      };
     }
+    return {
+      message: "Header image added successfully",
+    };
+  }
+
+  async removeHeaderImage(userId, noteId) {
+    const updatedNote = await Note.findOneAndUpdate(
+      {
+        _id: noteId,
+        created_by: userId,
+      },
+      {
+        $unset: { header_image: "" },
+      },
+      { new: true }
+    );
+    if (!updatedNote) {
+      throw new UserError(
+        404,
+        "Note not found or you do not have permission to remove the header image"
+      );
+    }
+    return {
+      message: "Header image removed successfully",
+    };
+  }
+
+  async addTag(userId, noteId, tagId) {
+    const tagFound = await Tag.findOne({ _id: tagId, created_by: userId });
+
+    if (!tagFound) {
+      throw new UserError(404, "Tag not found");
+    }
+
+    const updatedNote = await Note.findOneAndUpdate(
+      {
+        _id: noteId,
+        created_by: userId,
+      },
+      {
+        $addToSet: { tags: tagId },
+      },
+      { new: true }
+    );
+
+    if (!updatedNote) {
+      throw new UserError(
+        404,
+        "Note not found or you do not have permission to add a tag"
+      );
+    }
+
+    return {
+      message: "Tag added successfully",
+    };
+  }
+
+  async removeTag(userId, noteId, tagId) {
+    const tagFound = await Tag.findOne({ _id: tagId, created_by: userId });
+
+    if (!tagFound) {
+      throw new UserError(404, "Tag not found");
+    }
+
+    const updatedNote = await Note.findOneAndUpdate(
+      {
+        _id: noteId,
+        created_by: userId,
+      },
+      {
+        $pull: { tags: tagId },
+      },
+      { new: true }
+    );
+    if (!updatedNote) {
+      throw new UserError(
+        404,
+        "Note not found or you do not have permission to remove a tag"
+      );
+    }
+    return {
+      message: "Tag removed successfully",
+    };
+  }
+
+  async shareNote(userId, noteId, payload) {
+    const userFound = await User.findOne({ email: payload.email });
+
+    if (!userFound) {
+      throw new UserError(404, "User not found");
+    }
+
+    const updatedNote = await Note.findOneAndUpdate(
+      {
+        _id: noteId,
+        created_by: userId,
+      },
+      {
+        $addToSet: {
+          shared_with: {
+            user_id: userFound._id,
+            permission: payload.permission,
+          },
+        },
+      }
+    );
+
+    if (!updatedNote) {
+      throw new UserError(
+        404,
+        "Note not found or you do not have permission to share it"
+      );
+    }
+
+    return {
+      message: "Note shared successfully",
+    };
+  }
+
+  async unshareNote(userId, noteId, payload) {
+    const userFound = await User.findOne({ email: payload.email });
+
+    if (!userFound) {
+      throw new UserError(404, "User not found");
+    }
+
+    const updatedNote = await Note.findOneAndUpdate(
+      {
+        _id: noteId,
+        created_by: userId,
+      },
+      {
+        $pull: {
+          shared_with: {
+            user_id: userFound._id,
+          },
+        },
+      }
+    );
+
+    if (!updatedNote) {
+      throw new UserError(
+        404,
+        "Note not found or you do not have permission to unshare it"
+      );
+    }
+
+    return {
+      message: "Note unshared successfully",
+    };
   }
 }
 

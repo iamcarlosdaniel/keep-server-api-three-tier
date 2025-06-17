@@ -1,130 +1,72 @@
-import TagService from "../services/tag.service.js";
+import tagService from "../services/tag.service.js";
+
+import { catchedAsync } from "../utils/catchedAsync.util.js";
 
 class TagController {
-  async getAllMyTags(req, res) {
-    try {
-      const userId = req.authData.id;
-      const response = await TagService.getAllMyTags(userId);
-      return res.status(200).send({
-        status: "OK",
-        message: response.message,
-        data: response.data,
-      });
-    } catch (error) {
-      console.log(error);
-      res.status(error?.status || 500).send({
-        status: "FAILED",
-        error: [
-          {
-            message:
-              error?.message ||
-              "Ocurrio un error al procesar su solicitud. Por favor intente de nuevo mas tarde.",
-          },
-        ],
-      });
-    }
-  }
+  getMyTags = catchedAsync(async (req, res) => {
+    const userId = req.authData.id;
 
-  async getTagById(req, res) {
-    try {
-      const tagId = req.params.tagId;
-      const response = await TagService.getTagById(tagId);
-      return res.status(200).send({
-        status: "OK",
-        message: response.message,
-        data: response.data,
-      });
-    } catch (error) {
-      console.log(error);
-      res.status(error?.status || 500).send({
-        status: "FAILED",
-        error: [
-          {
-            message:
-              error?.message ||
-              "Ocurrio un error al procesar su solicitud. Por favor intente de nuevo mas tarde.",
-          },
-        ],
-      });
-    }
-  }
+    const response = await tagService.getMyTags(userId);
 
-  async createTag(req, res) {
-    try {
-      const userId = req.authData.id;
-      const tagData = req.body;
+    return res.status(200).send({
+      status: "OK",
+      message: response.message,
+      data: response.data,
+    });
+  });
 
-      const response = await TagService.createTag(userId, tagData);
-      return res.status(200).send({
-        status: "OK",
-        message: response.message,
-        data: response.data,
-      });
-    } catch (error) {
-      console.log(error);
-      res.status(error?.status || 500).send({
-        status: "FAILED",
-        error: [
-          {
-            message:
-              error?.message ||
-              "Ocurrio un error al procesar su solicitud. Por favor intente de nuevo mas tarde.",
-          },
-        ],
-      });
-    }
-  }
+  getTagById = catchedAsync(async (req, res) => {
+    const userId = req.authData.id;
+    const tagId = req.params.tagId;
 
-  async updateTag(req, res) {
-    try {
-      const tagId = req.params.id;
-      const tagData = req.body;
+    const response = await tagService.getTagById(userId, tagId);
 
-      const response = await TagService.updateTag(tagId, tagData);
-      return res.status(200).send({
-        status: "OK",
-        message: response.message,
-        data: response.data,
-      });
-    } catch (error) {
-      console.log(error);
-      res.status(error?.status || 500).send({
-        status: "FAILED",
-        error: [
-          {
-            message:
-              error?.message ||
-              "Ocurrio un error al procesar su solicitud. Por favor intente de nuevo mas tarde.",
-          },
-        ],
-      });
-    }
-  }
+    return res.status(200).send({
+      status: "OK",
+      message: response.message,
+      data: response.data,
+    });
+  });
 
-  async deleteTag(req, res) {
-    try {
-      const tagId = req.params.id;
+  createTag = catchedAsync(async (req, res) => {
+    const userId = req.authData.id;
+    const tagData = req.body;
 
-      const response = await TagService.deleteTag(tagId);
-      return res.status(200).send({
-        status: "OK",
-        message: response.message,
-        data: response.data,
-      });
-    } catch (error) {
-      console.log(error);
-      res.status(error?.status || 500).send({
-        status: "FAILED",
-        error: [
-          {
-            message:
-              error?.message ||
-              "Ocurrio un error al procesar su solicitud. Por favor intente de nuevo mas tarde.",
-          },
-        ],
-      });
-    }
-  }
+    const response = await tagService.createTag(userId, tagData);
+
+    return res.status(200).send({
+      status: "OK",
+      message: response.message,
+      data: response.data,
+    });
+  });
+
+  updateTag = catchedAsync(async (req, res) => {
+    const userId = req.authData.id;
+    const tagId = req.params.id;
+    const tagData = req.body;
+
+    const response = await tagService.updateTag(userId, tagId, tagData);
+
+    return res.status(200).send({
+      status: "OK",
+      message: response.message,
+      data: response.data,
+    });
+  });
+
+  deleteTag = catchedAsync(async (req, res) => {
+    const userId = req.authData.id;
+    const tagId = req.params.id;
+
+    const response = await tagService.deleteTag(userId, tagId);
+
+    return res.status(200).send({
+      status: "OK",
+      message: response.message,
+      data: response.data,
+    });
+  });
 }
 
 export default new TagController();

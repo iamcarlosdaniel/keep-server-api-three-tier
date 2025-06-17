@@ -1,89 +1,161 @@
 import noteService from "../services/note.service.js";
 
+import { catchedAsync } from "../utils/catchedAsync.util.js";
+
 class NoteController {
-  async getAllMyNotes(req, res) {
-    try {
-      const response = await noteService.getAllMyNotes(req.authData.id);
-      res.send({
-        status: "OK",
-        message: response.message,
-        data: response.data,
-      });
-    } catch (error) {
-      res.status(error?.status || 500).send({
-        status: "FAILED",
-        data: { error: [{ message: error.message || error }] },
-      });
-    }
-  }
+  getMyNotes = catchedAsync(async (req, res) => {
+    const userId = req.authData.id;
 
-  async getOneNote(req, res) {
-    try {
-      const response = await noteService.getOneNote(req.params.id);
+    const response = await noteService.getMyNotes(userId);
 
-      res.status(200).send({ status: "OK", data: response.data });
-    } catch (error) {
-      res.status(error?.status || 500).send({
-        status: "FAILED",
-        data: { error: [{ message: error.message || error }] },
-      });
-    }
-  }
+    res.send({
+      status: "success",
+      message: response.message,
+      data: response.data,
+    });
+  });
 
-  async createNote(req, res) {
-    try {
-      const response = await noteService.createNote(req.authData.id, req.body);
+  getNotesSharedWithMe = catchedAsync(async (req, res) => {
+    const userId = req.authData.id;
 
-      res.status(200).send({ status: "OK", data: response.message });
-    } catch (error) {
-      res.status(error?.status || 500).send({
-        status: "FAILED",
-        data: { error: [{ message: error.message || error }] },
-      });
-    }
-  }
+    const response = await noteService.getNotesSharedWithMe(userId);
 
-  async updateNote(req, res) {
-    try {
-      const response = await noteService.updateNote(req.params.id, req.body);
+    res.status(200).send({
+      status: "success",
+      message: response.message,
+      data: response.data,
+    });
+  });
 
-      res.status(200).send({ status: "OK", data: response.message });
-    } catch (error) {
-      res.status(error?.status || 500).send({
-        status: "FAILED",
-        data: { error: [{ message: error.message || error }] },
-      });
-    }
-  }
+  getNoteById = catchedAsync(async (req, res) => {
+    const userId = req.authData.id;
+    const noteId = req.params.noteId;
 
-  async deleteImageFromNote(req, res) {
-    try {
-      const response = await noteService.deleteImageFromNote(
-        req.params.id,
-        req.params.imageId
-      );
+    const response = await noteService.getNoteById(userId, noteId);
 
-      res.status(200).send({ status: "OK", data: response.message });
-    } catch (error) {
-      res.status(error?.status || 500).send({
-        status: "FAILED",
-        data: { error: [{ message: error.message || error }] },
-      });
-    }
-  }
+    res.status(200).send({
+      status: "success",
+      message: response.message,
+      data: response.data,
+    });
+  });
 
-  async deleteNote(req, res) {
-    try {
-      const response = await noteService.deleteNote(req.params.id);
+  createNote = catchedAsync(async (req, res) => {
+    const userId = req.authData.id;
+    const noteData = req.body;
 
-      res.status(200).send({ status: "OK", data: response.message });
-    } catch (error) {
-      res.status(error?.status || 500).send({
-        status: "FAILED",
-        data: { error: [{ message: error.message || error }] },
-      });
-    }
-  }
+    const response = await noteService.createNote(userId, noteData);
+
+    res.status(200).send({
+      status: "success",
+      message: response.message,
+      data: response.data,
+    });
+  });
+
+  updateNote = catchedAsync(async (req, res) => {
+    const userId = req.authData.id;
+    const noteId = req.params.noteId;
+    const noteData = req.body;
+
+    const response = await noteService.updateNote(userId, noteId, noteData);
+
+    res.status(200).send({
+      status: "success",
+      message: response.message,
+      data: response.data,
+    });
+  });
+
+  deleteNote = catchedAsync(async (req, res) => {
+    const userId = req.authData.id;
+    const noteId = req.params.noteId;
+
+    const response = await noteService.deleteNote(userId, noteId);
+
+    res.status(200).send({
+      status: "success",
+      message: response.message,
+    });
+  });
+
+  addHeaderImage = catchedAsync(async (req, res) => {
+    const userId = req.authData.id;
+    const noteId = req.params.noteId;
+    const imageId = req.body.imageId;
+
+    const response = await noteService.addHeaderImage(userId, noteId, imageId);
+
+    res.status(200).send({
+      status: "success",
+      message: response.message,
+    });
+  });
+
+  removeHeaderImage = catchedAsync(async (req, res) => {
+    const userId = req.authData.id;
+    const noteId = req.params.noteId;
+
+    const response = await noteService.removeHeaderImage(userId, noteId);
+
+    res.status(200).send({
+      status: "success",
+      message: response.message,
+    });
+  });
+
+  addTag = catchedAsync(async (req, res) => {
+    const userId = req.authData.id;
+    const noteId = req.params.noteId;
+    const tagId = req.body.tagId;
+
+    const response = await noteService.addTag(userId, noteId, tagId);
+
+    res.status(200).send({
+      status: "success",
+      message: response.message,
+    });
+  });
+
+  removeTag = catchedAsync(async (req, res) => {
+    const userId = req.authData.id;
+    const noteId = req.params.noteId;
+    const tagId = req.body.tagId;
+
+    const response = await noteService.removeTag(userId, noteId, tagId);
+
+    res.status(200).send({
+      status: "success",
+      message: response.message,
+      data: response.data,
+    });
+  });
+
+  shareNote = catchedAsync(async (req, res) => {
+    const userId = req.authData.id;
+    const noteId = req.params.noteId;
+    const payload = req.body;
+
+    const response = await noteService.shareNote(userId, noteId, payload);
+
+    res.status(200).send({
+      status: "success",
+      message: response.message,
+    });
+  });
+
+  unshareNote = catchedAsync(async (req, res) => {
+    const userId = req.authData.id;
+    const noteId = req.params.noteId;
+    const payload = req.body;
+
+    const response = await noteService.unshareNote(userId, noteId, payload);
+
+    res.status(200).send({
+      status: "success",
+      message: response.message,
+    });
+  });
 }
 
 export default new NoteController();

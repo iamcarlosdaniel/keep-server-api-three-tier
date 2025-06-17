@@ -2,16 +2,18 @@ import { Router } from "express";
 
 import { authenticationMiddleware } from "../../middlewares/authentication.middleware.js";
 
-import TagController from "../../controllers/tag.controller.js";
+import tagController from "../../controllers/tag.controller.js";
 
 const router = Router();
 
-router.get("/", authenticationMiddleware, TagController.getAllMyTags);
+router.get("/", authenticationMiddleware, tagController.getMyTags);
 
-router.post("/", authenticationMiddleware, TagController.createTag);
+router.get("/:tagId", authenticationMiddleware, tagController.getTagById);
 
-router.put("/:id", authenticationMiddleware, TagController.updateTag);
+router.post("/", authenticationMiddleware, tagController.createTag);
 
-router.delete("/:id", authenticationMiddleware, TagController.deleteTag);
+router.put("/:tagId", authenticationMiddleware, tagController.updateTag);
+
+router.delete("/:tagId", authenticationMiddleware, tagController.deleteTag);
 
 export default router;

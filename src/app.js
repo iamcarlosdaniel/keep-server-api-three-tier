@@ -8,7 +8,8 @@ import { apiReference } from "@scalar/express-api-reference";
 import authRoutes from "./v1/routes/auth.routes.js";
 import notesRoutes from "./v1/routes/note.routes.js";
 import tagRoutes from "./v1/routes/tag.routes.js";
-import imagesRoutes from "./v1/routes/image.route.js";
+import colorRoutes from "./v1/routes/color.routes.js";
+import fileRoutes from "./v1/routes/file.routes.js";
 
 import errorHandler from "./middlewares/errorHandler.middleware.js";
 
@@ -18,7 +19,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: true,
     credentials: true,
   })
 );
@@ -30,7 +31,8 @@ app.use(cookieParser());
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/notes", notesRoutes);
 app.use("/api/v1/tags", tagRoutes);
-app.use("/api/v1/images", imagesRoutes);
+app.use("/api/v1/colors", colorRoutes);
+app.use("/api/v1/files", fileRoutes);
 
 app.use(errorHandler);
 

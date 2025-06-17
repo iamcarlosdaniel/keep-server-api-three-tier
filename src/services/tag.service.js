@@ -1,108 +1,86 @@
 import Tag from "../database/models/tag.model.js";
 
-class TagService {
-  async getAllMyTags(userId) {
-    try {
-      const allTags = await Tag.find({ user_id: userId });
+import UserError from "../errors/user.error.js";
 
-      return {
-        message: "Tags retrieved successfully",
-        data: { tags: allTags },
-      };
-    } catch (error) {
-      throw new Error(error.message);
+class TagService {
+  async getMyTags(userId) {
+    const allTags = await Tag.find({ created_by: userId }).select("-__v");
+
+    if (!allTags || allTags.length === 0) {
+      throw new UserError(404, "No tags found for this user");
     }
+
+    return {
+      message: "Tags retrieved successfully",
+      data: { tags: allTags },
+    };
   }
 
-  async getMyTagById(tagId) {
-    try {
-      const tagFound = await Tag.findById(tagId);
-      if (!tagFound) {
-        throw {
-          status: 404,
-          userErrorMessage: "Tag not found",
-        };
-      }
-      return {
-        message: "Tag retrieved successfully",
-        data: { tag: tagFound },
-      };
-    } catch (error) {
-      console.log(error);
-      throw {
-        status: error.status,
-        message: error.userErrorMessage,
-      };
+  async getTagById(userId, tagId) {
+    const tagFound = await Tag.findOne({
+      _id: tagId,
+      created_by: userId,
+    }).select("-__v");
+
+    if (!tagFound) {
+      throw new UserError(404, "Tag not found");
     }
+
+    return {
+      message: "Tag retrieved successfully",
+      data: { tag: tagFound },
+    };
   }
 
   async createTag(userId, tagData) {
-    try {
-      const newTag = await Tag.create({
-        user_id: userId,
-        ...tagData,
-      });
+    const tagFound = await Tag.findOne({
+      title: tagData.title,
+      created_by: userId,
+    });
 
-      return {
-        message: "Tag created successfully",
-        data: { tag: newTag },
-      };
-    } catch (error) {
-      console.log(error);
-      throw {
-        status: error.status,
-        message: error.userErrorMessage,
-      };
+    if (tagFound) {
+      throw new UserError(400, "Tag with this title already exists");
     }
+
+    await Tag.create({
+      created_by: userId,
+      ...tagData,
+    });
+
+    return {
+      message: "Tag created successfully",
+    };
   }
 
-  async updateTag(tagId, tagData) {
-    try {
-      const updatedTag = await Tag.findByIdAndUpdate(
-        tagId,
-        { ...tagData },
-        {
-          new: true,
-        }
-      );
-      if (!updatedTag) {
-        throw {
-          status: 404,
-          userErrorMessage: "Tag not found",
-        };
+  async updateTag(userId, tagId, tagData) {
+    const updatedTag = await Tag.findOneAndUpdate(
+      { _id: tagId, created_by: userId },
+      { ...tagData },
+      {
+        new: true,
       }
-      return {
-        message: "Tag updated successfully",
-        data: { tag: updatedTag },
-      };
-    } catch (error) {
-      console.log(error);
-      throw {
-        status: error.status,
-        message: error.userErrorMessage,
-      };
+    );
+
+    if (!updatedTag) {
+      throw new UserError(404, "Tag not found");
     }
+
+    return {
+      message: "Tag updated successfully",
+    };
   }
 
-  async deleteTag(tagId) {
-    try {
-      const tagDeleted = await Tag.findByIdAndDelete(tagId);
+  async deleteTag(userId, tagId) {
+    const deletedTag = await Tag.findOneAndDelete({
+      _id: tagId,
+      created_by: userId,
+    });
 
-      if (!tagDeleted) {
-        throw {
-          status: 404,
-          userErrorMessage: "Tag not found",
-        };
-      }
-
-      return { message: "Tag deleted successfully" };
-    } catch (error) {
-      console.log(error);
-      throw {
-        status: error.status,
-        message: error.userErrorMessage,
-      };
+    if (!deletedTag) {
+      throw new Error(404, "Tag not found");
     }
+
+    return { message: "Tag deleted successfully" };
   }
 }
 
