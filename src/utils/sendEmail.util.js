@@ -33,6 +33,8 @@ export async function sendEmail(to, subject, template, context) {
     context: {
       url: context.url,
       otp: context.otp,
+      firstName: context.firstName,
+      noteId: context.noteId,
     },
   };
 

@@ -3,6 +3,8 @@ import User from "../database/models/user.model.js";
 import Tag from "../database/models/tag.model.js";
 import Color from "../database/models/color.model.js";
 
+import { sendEmail } from "../utils/sendEmail.util.js";
+
 import UserError from "../errors/user.error.js";
 
 class NoteService {
@@ -289,6 +291,13 @@ class NoteService {
         "Note not found or you do not have permission to share it"
       );
     }
+
+    const context = {
+      firstName: userFound.first_name,
+      noteId: noteId,
+    };
+
+    await sendEmail(payload.email, "Share note", "shareNoteTemplate", context);
 
     return {
       message: "Note shared successfully",
