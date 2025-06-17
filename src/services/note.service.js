@@ -59,6 +59,10 @@ class NoteService {
       .populate({
         path: "created_by",
         select: "first_name last_name",
+      })
+      .populate({
+        path: "shared_with.user_id",
+        select: " email",
       });
 
     if (!noteFound) {
