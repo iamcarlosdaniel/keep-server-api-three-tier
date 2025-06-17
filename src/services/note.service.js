@@ -2,6 +2,7 @@ import Note from "../database/models/note.model.js";
 import User from "../database/models/user.model.js";
 import Tag from "../database/models/tag.model.js";
 import Color from "../database/models/color.model.js";
+import File from "../database/models/file.model.js";
 
 import { sendEmail } from "../utils/sendEmail.util.js";
 
@@ -57,7 +58,7 @@ class NoteService {
       .select("-__v")
       .populate({ path: "header_image", select: "url" })
       .populate({ path: "color", select: "name" })
-      .populate({ path: "tags", select: "title" })
+      .populate({ path: "tags", select: "title color" })
       .populate({
         path: "created_by",
         select: "first_name last_name",
@@ -65,6 +66,10 @@ class NoteService {
       .populate({
         path: "shared_with.user_id",
         select: " email",
+      })
+      .populate({
+        path: "header_image",
+        select: "url",
       });
 
     if (!noteFound) {

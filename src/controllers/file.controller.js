@@ -19,6 +19,7 @@ class FileController {
     res.status(200).send({
       status: "OK",
       message: response.message,
+      data: response.data,
     });
   });
 

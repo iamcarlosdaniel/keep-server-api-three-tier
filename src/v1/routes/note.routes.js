@@ -41,7 +41,7 @@ router.put(
   noteController.changeColor
 );
 
-router.post(
+router.put(
   "/:noteId/header",
   authenticationMiddleware,
   noteController.addHeaderImage

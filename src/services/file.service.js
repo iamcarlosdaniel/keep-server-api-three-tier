@@ -30,7 +30,7 @@ class FileService {
     const relativePath = "images/" + userId;
     const newFile = await saveFileToDisk(relativePath, file);
 
-    await File.create({
+    const newFileSaved = await File.create({
       uploaded_by: userId,
       original_name: newFile.originalName,
       stored_file_name: newFile.storedFileName,
@@ -43,7 +43,9 @@ class FileService {
         "/view",
     });
 
-    return { message: "The image was saved successfully." };
+    console.log("File saved successfully:", newFileSaved);
+
+    return { message: "The image was saved successfully.", data: newFileSaved };
   }
 
   async deleteFile(imageId) {

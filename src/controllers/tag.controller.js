@@ -43,7 +43,7 @@ class TagController {
 
   updateTag = catchedAsync(async (req, res) => {
     const userId = req.authData.id;
-    const tagId = req.params.id;
+    const tagId = req.params.tagId;
     const tagData = req.body;
 
     const response = await tagService.updateTag(userId, tagId, tagData);
@@ -57,7 +57,7 @@ class TagController {
 
   deleteTag = catchedAsync(async (req, res) => {
     const userId = req.authData.id;
-    const tagId = req.params.id;
+    const tagId = req.params.tagId;
 
     const response = await tagService.deleteTag(userId, tagId);
 
